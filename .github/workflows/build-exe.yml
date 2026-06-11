@@ -1,0 +1,36 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [ "cursor/docx-merger-tool-5c78" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install -r docx-merger/requirements.txt
+
+      - name: Build EXE with PyInstaller
+        working-directory: docx-merger
+        run: |
+          pyinstaller --onefile --windowed --name="DOCX文件合并工具" --clean --noconfirm docx_merger.py
+
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DOCX文件合并工具
+          path: docx-merger/dist/DOCX文件合并工具.exe
+          retention-days: 90
